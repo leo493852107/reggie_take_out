@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Dish implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private long id;
+    private Long id;
     // 菜品名称
     private String name;
     // 菜品分类id
