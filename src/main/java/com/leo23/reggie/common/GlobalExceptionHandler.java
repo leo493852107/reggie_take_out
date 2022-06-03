@@ -29,4 +29,15 @@ public class GlobalExceptionHandler {
         }
         return R.error("失败了");
     }
+
+    /**
+     * 自定义异常处理方法
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException e) {
+        log.error(e.getMessage());
+        return R.error(e.getMessage());
+    }
 }

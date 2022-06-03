@@ -8,25 +8,26 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class Employee implements Serializable {
-    public static final long serialVersionUID = 1L;
+public class Category implements Serializable {
+    private static final long serializerVersionUID = 1L;
     private Long id;
-    private String username;
-    private String name;
-    private String password;
-    private String phone;
-    private String sex;
-    // 身份证号码
-    private String idNumber;
-    private Integer status;
 
+    // 类型 1菜品分类 2套餐分类
+    private Integer type;
+    // 分类名称
+    private String name;
+    // 顺序
+    private Integer sort;
+    // 创建时间
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+    // 更新时间
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-
+    // 创建人
     @TableField(fill = FieldFill.INSERT)
     private Long createUser;
+    // 修改人
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
 
