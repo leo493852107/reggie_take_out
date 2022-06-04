@@ -8,6 +8,8 @@ import com.leo23.reggie.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 分类管理
  */
@@ -50,18 +52,34 @@ public class CategoryController {
 
     @DeleteMapping
     public R<String> deleteById(Long id) {
-       categoryService.remove(id);
-       return R.success("分类信息删除成功");
+        categoryService.remove(id);
+        return R.success("分类信息删除成功");
     }
 
     /**
      * 根据 id 修改分类信息
+     *
      * @param category
      * @return
      */
     @PutMapping
-    public R<String> update(@RequestBody Category category){
+    public R<String> update(@RequestBody Category category) {
         categoryService.updateById(category);
         return R.success("修改信息分类成功");
+    }
+
+    /**
+     * 根据条件查询分类数据
+     *
+     * @param category
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Category>> list(Category category) {
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(category.getType() != null, Category::getType, category.getType());
+        queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+        List<Category> list = categoryService.list(queryWrapper);
+        return R.success(list);
     }
 }
