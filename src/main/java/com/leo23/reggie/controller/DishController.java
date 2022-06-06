@@ -6,7 +6,9 @@ import com.leo23.reggie.common.R;
 import com.leo23.reggie.dto.DishDto;
 import com.leo23.reggie.entity.Category;
 import com.leo23.reggie.entity.Dish;
+import com.leo23.reggie.entity.DishFlavor;
 import com.leo23.reggie.service.CategoryService;
+import com.leo23.reggie.service.DishFlavorService;
 import com.leo23.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +29,8 @@ public class DishController {
     private DishService dishService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private DishFlavorService dishFlavorService;
 
     /**
      * 新增菜品
@@ -109,14 +113,45 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish) {
+    public R<List<DishDto>> list(Dish dish) {
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, (Long) dish.getCategoryId());
         // 在售卖的 状态为1
         queryWrapper.eq(Dish::getStatus, 1);
         queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
+
         List<Dish> list = dishService.list(queryWrapper);
-        return R.success(list);
+
+        List<DishDto> dishDtoList = list.stream().map((item) -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item, dishDto);
+            Long categoryId = item.getCategoryId();
+            Category category = categoryService.getById(categoryId);
+            if (category != null) {
+                // 设置 分类名称
+                dishDto.setCategoryName(category.getName());
+            }
+            // 菜品id
+            Long dishId = item.getId();
+            LambdaQueryWrapper<DishFlavor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(DishFlavor::getDishId, dishId);
+            List<DishFlavor> dishFlavorList = dishFlavorService.list(wrapper);
+            dishDto.setFlavors(dishFlavorList);
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        return R.success(dishDtoList);
 
     }
+//    @GetMapping("/list")
+//    public R<List<Dish>> list(Dish dish) {
+//        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, (Long) dish.getCategoryId());
+//        // 在售卖的 状态为1
+//        queryWrapper.eq(Dish::getStatus, 1);
+//        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
+//        List<Dish> list = dishService.list(queryWrapper);
+//        return R.success(list);
+//
+//    }
 }
